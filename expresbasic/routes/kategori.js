@@ -57,4 +57,23 @@ router.patch('/update/:id', async function(req, res, next){
     }
 })
 
+//router untuk delete
+router.delete('/delete/(:id)', async function(req, res, next){
+    try {
+        let id = req.params.id;
+
+        await Model_Kategori.Delete(id);
+
+        return res.status(201).json({
+            status: true,
+            message: 'Data berhasil di hapus'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: true,
+            message: 'Terjadi kesalahan pada router'
+        })
+    }
+})
+
 module.exports = router;
