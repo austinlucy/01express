@@ -1,8 +1,9 @@
 var express = require('express');
 const Model_Kategori = require('../model/Model_Kategori');
 var router = express.Router();
+const cacheMiddleware = require('../config/middleware/cacheMiddleware');
 
-router.get('/', async function(req, res, next){
+router.get('/', cacheMiddleware, async function(req, res, next){
     let rows = await Model_Kategori.getAll();
     return res.status(200).json({
         status: true,
