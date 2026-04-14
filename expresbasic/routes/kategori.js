@@ -2,13 +2,26 @@ var express = require('express');
 const Model_Kategori = require('../model/Model_Kategori');
 var router = express.Router();
 const cacheMiddleware = require('../config/middleware/cacheMiddleware');
+const kategoriQueue = require('../config/queue/kategoriQueue');
 
+// GET sebelum menggunakan antrian
 router.get('/', cacheMiddleware, async function(req, res, next){
     let rows = await Model_Kategori.getAll();
     return res.status(200).json({
         status: true,
         message: 'Data Kategori',
         data: rows
+    })
+})
+
+// GET setelah menggunakan antrian
+router.get('/', cacheMiddleware, async function(req, res, next){
+    const job = await kategoriQueue.add('get', { action: 'get' });
+    const result = await job.finished();
+    return res.status(200).json({
+        status: true,
+        message: 'Data Kategori',
+        data: result.data
     })
 })
 
@@ -20,7 +33,8 @@ router.post('/store', async function(req, res, next){
             nama_kategori
         }
 
-        await Model_Kategori.Store(Data);
+        const job = await kategoriQueue.add('store', Data);
+        await job.finished();
 
         return res.status(201).json({
             status: true,
