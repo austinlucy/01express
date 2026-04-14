@@ -5,6 +5,8 @@ var router = express.Router();
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
+const NodeCache = require('node-cache');
+const cache = new NodeCache({ stdTTL: 60 });
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -25,20 +27,14 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({storage: storage, limits, fileFilter})
 
 // GET All - Menampilkan semua data produk
-router.get('/', async function(req, res, next) {
-    try {
-        let rows = await Model_Produk.getAll();
-        res.json({
-            success: true,
-            data: rows
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Gagal mengambil data',
-            error: error.message
-        });
-    }
+router.get('/', async function(req, res, next){
+    let rows = await Model_Produk.getAll();
+    cache.set('all_produk', rows, 60); // Cache data selama 60 detik
+    return res.status(200).json({
+        status: true,
+        message: 'Data Produk (cache)',
+        data: rows
+    });
 });
 
 // GET By ID - Menampilkan data produk berdasarkan ID

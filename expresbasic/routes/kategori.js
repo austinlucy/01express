@@ -1,5 +1,5 @@
 var express = require('express');
-const Model_Kategori = require('../model/Model_kategori');
+const Model_Kategori = require('../model/Model_Kategori');
 var router = express.Router();
 
 router.get('/', async function(req, res, next){
